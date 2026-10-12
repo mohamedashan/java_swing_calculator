@@ -19,3 +19,6 @@ java Calculator
 
 ## Keyboard
 Digits, `+ - * /`, `.`, `%`, `Enter`/`=`, `Backspace`, `Esc` (clear).
+
+Keyboard shortcuts use window-level bindings, so they continue to work after
+clicking calculator buttons or while focus is on another control.

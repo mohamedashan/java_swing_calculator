@@ -1,7 +1,6 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -109,26 +108,33 @@ public class Calculator extends JFrame {
     // ---------- Keyboard ----------
 
     private void setupKeyboard() {
-        addKeyListener(new KeyAdapter() {
+        // Window-level bindings work even when a button or another child owns focus.
+        InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = getRootPane().getActionMap();
+
+        for (char digit = '0'; digit <= '9'; digit++) {
+            bindKey(inputMap, actionMap, KeyStroke.getKeyStroke(digit), String.valueOf(digit));
+        }
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke('.'), ".");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke(','), ".");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke('+'), "+");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke('-'), "−");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke('*'), "×");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke('/'), "÷");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke('%'), "%");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke('='), "=");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "=");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "⌫");
+        bindKey(inputMap, actionMap, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "C");
+    }
+
+    private void bindKey(InputMap inputMap, ActionMap actionMap, KeyStroke keyStroke, String action) {
+        String actionName = "key-" + action + "-" + keyStroke;
+        inputMap.put(keyStroke, actionName);
+        actionMap.put(actionName, new AbstractAction() {
             @Override
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (Character.isDigit(c)) {
-                    handle(String.valueOf(c));
-                } else {
-                    switch (c) {
-                        case '.', ',' -> handle(".");
-                        case '+'      -> handle("+");
-                        case '-'      -> handle("−");
-                        case '*'      -> handle("×");
-                        case '/'      -> handle("÷");
-                        case '%'      -> handle("%");
-                        case '=', '\n' -> handle("=");
-                        case '\b'     -> handle("⌫");
-                        case 27       -> handle("C");   // Esc
-                        default       -> { }
-                    }
-                }
+            public void actionPerformed(java.awt.event.ActionEvent event) {
+                handle(action);
             }
         });
     }
